@@ -618,6 +618,56 @@ fig_tiers.update_layout(template=CHART_TEMPLATE, height=350)
 fig_tiers.show()
 '''))
 
+nb.cells.append(new_markdown_cell('## Cell 21: Weekly Downloads Leaderboard'))
+nb.cells.append(new_code_cell('''# Weekly Downloads Leaderboard - Top 15 packages by downloads
+downloads_leaderboard = []
+
+# Add npm packages
+for pkg, downloads in npm_weekly.items():
+    if downloads > 0:
+        downloads_leaderboard.append({
+            "Package": pkg,
+            "Downloads/Week": downloads,
+            "Ecosystem": "npm"
+        })
+
+# Add PyPI packages
+for _, row in pypi_summary_df.iterrows():
+    if row["downloads_last_week"] > 0:
+        downloads_leaderboard.append({
+            "Package": row["package_name"],
+            "Downloads/Week": row["downloads_last_week"],
+            "Ecosystem": "PyPI"
+        })
+
+downloads_df = pd.DataFrame(downloads_leaderboard)
+downloads_df = downloads_df.sort_values("Downloads/Week", ascending=False).head(15)
+
+print("Weekly Downloads Leaderboard - Top 15 Packages:")
+display(downloads_df)
+
+# Create visualization
+fig_downloads_leaderboard = px.bar(
+    downloads_df,
+    x="Downloads/Week",
+    y="Package",
+    orientation="h",
+    title="Weekly Downloads Leaderboard - Top 15 MCP Packages",
+    color="Ecosystem",
+    color_discrete_map={"npm": COLORS["primary"], "PyPI": COLORS["warning"]},
+    text="Downloads/Week"
+)
+
+fig_downloads_leaderboard.update_traces(textposition="outside", texttemplate="%{text:,.0f}")
+fig_downloads_leaderboard.update_layout(
+    template=CHART_TEMPLATE,
+    height=500,
+    yaxis={"categoryorder": "total ascending"},
+    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+)
+fig_downloads_leaderboard.show()
+'''))
+
 nb.cells.append(new_markdown_cell('## Dashboard Complete'))
 nb.cells.append(new_code_cell('''print("\\n[SUCCESS] MCP Ecosystem Dashboard Complete!")
 print(f"   Total Servers: {total_servers}")
